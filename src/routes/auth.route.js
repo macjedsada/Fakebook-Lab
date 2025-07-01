@@ -1,9 +1,21 @@
 import express from "express";
-const authRoute = express.Router();
 import * as authController from "../controllers/auth.controller.js";
+import {
+  loginSchema,
+  registerSchema,
+  validate,
+} from "../validations/validator.js";
+import tryCatch from "../utils/try-catch.util.js";
+import authenticate from "../middlewares/authenticate.middleware.js";
 
-authRoute.post("/login", authController.login);
-authRoute.post("/register", authController.register);
-authRoute.get("/me", authController.getMe);
+const authRoute = express.Router();
+
+authRoute.post("/login", validate(loginSchema), tryCatch(authController.login));
+authRoute.post(
+  "/register",
+  validate(registerSchema),
+  authController.registerYup
+);
+authRoute.get("/me", authenticate, authController.getMe);
 
 export default authRoute;
